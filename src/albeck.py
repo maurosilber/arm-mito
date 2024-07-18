@@ -308,3 +308,95 @@ class Albeck11b(Compartment):
         reverse_rate=KR,
         catalytic_rate=pore_transport_rate,
     )
+
+
+class Albeck11c(Compartment):
+    KF: Parameter = assign(default=1e-6)
+    KR: Parameter = assign(default=1e-3)
+    KC: Parameter = assign(default=1)
+    receptor = Receptor(KF=KF, KR=KR, KC=KC, Bid_U=4e4)
+    mitocondria = MOMP(
+        KF=KF,
+        KR=KR,
+        KC=KC,
+        Bid_U=receptor.Bid_U,
+        Bid_T=receptor.Bid_T,
+    )
+    intrinsic = Intrinsic(
+        KF=KF,
+        KR=KR,
+        KC=KC,
+        CytoC_A=mitocondria.CytoC_A,
+        Smac_A=mitocondria.Smac_A,
+        C8_pro=receptor.C8_pro,
+        C8_A=receptor.C8_A,
+    )
+    # MOMP Mechanism
+    r_Bid_Bax = reactions.MichaelisMenten(
+        E=mitocondria.Bid_T,
+        S=mitocondria.Bax_C,
+        ES=0,
+        P=mitocondria.Bax_A,
+        forward_rate=1e-7,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    # Bax dimerizes/tetramerizes
+    Bax_A2: Species = initial(default=0)
+    Bax_A4: Species = initial(default=0)
+    r_Bax_dimerization = reactions.Equilibration(
+        A=2 * mitocondria.Bax_A,
+        B=Bax_A2,
+        forward_rate=KF,
+        reverse_rate=KR,
+    )
+    r_Bax_tetramerization = reactions.Equilibration(
+        A=2 * Bax_A2,
+        B=Bax_A4,
+        forward_rate=KF,
+        reverse_rate=KR,
+    )
+
+    # Bcl2 inhibits Bax, Bax2, and Bax4
+    r_Bax_Bcl2 = reactions.ReversibleSynthesis(
+        A=mitocondria.Bax_A,
+        B=mitocondria.Bcl2,
+        AB=0,
+        forward_rate=KF,
+        reverse_rate=KR,
+    )
+    r_Bax2_Bcl2 = reactions.ReversibleSynthesis(
+        A=Bax_A2,
+        B=mitocondria.Bcl2,
+        AB=0,
+        forward_rate=KF,
+        reverse_rate=KR,
+    )
+    r_Bax4_Bcl2 = reactions.ReversibleSynthesis(
+        A=Bax_A4,
+        B=mitocondria.Bcl2,
+        AB=0,
+        forward_rate=KF,
+        reverse_rate=KR,
+    )
+
+    # Pore transport
+    pore_transport_rate: Parameter = assign(default=10)
+    r_Smac_pore = reactions.MichaelisMenten(
+        E=Bax_A4,
+        S=mitocondria.Smac_M,
+        ES=0,
+        P=mitocondria.Smac_C,
+        forward_rate=2 * KF,
+        reverse_rate=KR,
+        catalytic_rate=pore_transport_rate,
+    )
+    r_CytoC_pore = reactions.MichaelisMenten(
+        E=Bax_A4,
+        S=mitocondria.CytoC_M,
+        ES=0,
+        P=mitocondria.CytoC_C,
+        forward_rate=KF,
+        reverse_rate=KR,
+        catalytic_rate=pore_transport_rate,
+    )
