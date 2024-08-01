@@ -1,6 +1,6 @@
 from simbio import Compartment, Parameter, Species, assign, initial, reactions
 
-from .albeck import MOMP, Intrinsic
+from .albeck import MOMP
 
 
 class AlbeckAsMatlab(Compartment):
@@ -85,14 +85,126 @@ class AlbeckAsMatlab(Compartment):
         Bid_U=Bid_U,
         Bid_T=Bid_T,
     )
-    intrinsic = Intrinsic(
-        KF=KF,
-        KR=KR,
-        KC=KC,
-        CytoC_A=mitocondria.CytoC_A,
-        Smac_A=mitocondria.Smac_A,
-        C8_pro=C8_pro,
-        C8_A=C8_A,
+
+    Apaf_I: Species = initial(default=1e5)
+    Apaf_A: Species = initial(default=0)
+    Apop: Species = initial(default=0)  # Apoptosome (activated Apaf-1 + caspase 9)
+    C3_pro: Species = initial(default=1e4)
+    C3_A: Species = initial(default=0)
+    C3_ub: Species = initial(default=0)
+    C6_pro: Species = initial(default=1e4)
+    C6_A: Species = initial(default=0)
+    C9: Species = initial(default=1e5)
+    PARP_U: Species = initial(default=1e6)  # Uncleaved
+    PARP_C: Species = initial(default=0)  # Cleaved
+    XIAP: Species = initial(default=1e5)  # # X-linked Inhibitor of Apoptosis Protein
+
+    # Apoptosome formation
+    # --------------------
+    #   Apaf + cCytoC <-->  Apaf:cCytoC --> aApaf + cCytoC
+    #   aApaf + pC9 <-->  Apop
+    #   Apop + pC3 <-->  Apop:pC3 --> Apop + C3
+
+    r_CytoC_Apaf = reactions.MichaelisMenten(
+        E=mitocondria.CytoC_A,
+        S=Apaf_I,
+        ES=0,
+        P=Apaf_A,
+        forward_rate=5e-7,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_Apaf_C9 = reactions.ReversibleSynthesis(
+        A=Apaf_A,
+        B=C9,
+        AB=Apop,
+        forward_rate=5e-8,
+        reverse_rate=KR,
+    )
+    r_Apop_C3 = reactions.MichaelisMenten(
+        E=Apop,
+        S=C3_pro,
+        ES=0,
+        P=C3_A,
+        forward_rate=5e-9,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+
+    # Apoptosome-related inhibitors
+    # -----------------------------
+    #   Apop + XIAP <-->  Apop:XIAP
+    #   cSmac + XIAP <-->  cSmac:XIAP
+
+    r_Apop_XIAP = reactions.ReversibleSynthesis(
+        A=Apop,
+        B=XIAP,
+        AB=0,
+        forward_rate=2e-6,
+        reverse_rate=KR,
+    )
+    r_Smac_XIAP = reactions.ReversibleSynthesis(
+        A=mitocondria.Smac_A,
+        B=XIAP,
+        AB=0,
+        forward_rate=7e-6,
+        reverse_rate=KR,
+    )
+
+    # Caspase reactions
+    # -----------------
+    # Includes effectors, inhibitors, and feedback initiators:
+    #
+    #   pC3 + C8 <--> pC3:C8 --> C3 + C8 CSPS
+    #   pC6 + C3 <--> pC6:C3 --> C6 + C3 CSPS
+    #   XIAP + C3 <--> XIAP:C3 --> XIAP + C3_U CSPS
+    #   PARP + C3 <--> PARP:C3 --> CPARP + C3 CSPS
+    #   pC8 + C6 <--> pC8:C6 --> C8 + C6 CSPS
+
+    r_C8_C3 = reactions.MichaelisMenten(
+        E=C8_A,
+        S=C3_pro,
+        ES=0,
+        P=C3_A,
+        forward_rate=1e-7,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_XIAP_C3 = reactions.MichaelisMenten(
+        E=XIAP,
+        S=C3_A,
+        ES=0,
+        P=C3_ub,
+        forward_rate=2e-6,
+        reverse_rate=KR,
+        catalytic_rate=1e-1,
+    )
+    r_C3_PARP = reactions.MichaelisMenten(
+        E=C3_A,
+        S=PARP_U,
+        ES=0,
+        P=PARP_C,
+        forward_rate=KF,
+        reverse_rate=1e-2,
+        catalytic_rate=KC,
+    )
+    r_C3_C6 = reactions.MichaelisMenten(
+        E=C3_A,
+        S=C6_pro,
+        ES=0,
+        P=C6_A,
+        forward_rate=KF,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_C6_C8 = reactions.MichaelisMenten(
+        E=C6_A,
+        S=C8_pro,
+        ES=0,
+        P=C8_A,
+        forward_rate=3e-8,
+        reverse_rate=KR,
+        catalytic_rate=KC,
     )
     # MOMP Mechanism
     r_Bid_Bax = reactions.MichaelisMenten(
