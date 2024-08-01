@@ -144,6 +144,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zeromq-4.3.5-hcc0f68c_4.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.19.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.6-hb46c0d2_0.conda
+      - pypi: git+https://github.com/acorbat/caspase_model@ef0bbe41e2ab7c8cb8b893cc98249577e3f069d3
       - pypi: git+https://github.com/acorbat/earm@957d910aef856f62486898b29254339151c125aa
       - pypi: https://files.pythonhosted.org/packages/8c/6f/8702ef324cf2e176949384522005af9d8ba9a2a198e3d0fa7f5c45559fa7/SimBio-0.4.0-py3-none-any.whl
 packages:
@@ -278,6 +279,15 @@ packages:
   purls: []
   size: 154517
   timestamp: 1720077468981
+- kind: pypi
+  name: caspase-model
+  version: 0.1.dev44+gef0bbe4
+  url: git+https://github.com/acorbat/caspase_model@ef0bbe41e2ab7c8cb8b893cc98249577e3f069d3
+  requires_dist:
+  - pre-commit ; extra == 'dev'
+  - pysb ; extra == 'pysb'
+  - earm @ git+https://github.com/acorbat/earm ; extra == 'pysb'
+  - simbio ; extra == 'simbio'
 - kind: conda
   name: certifi
   version: 2024.7.4

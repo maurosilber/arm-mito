@@ -20,3 +20,4 @@ pre-commit = ">=3.7.1,<3.8"
 [pypi-dependencies]
 simbio = ">=0.4.0, <0.5"
 earm = { git = "https://github.com/acorbat/earm" }
+caspase-model = { git = "https://github.com/acorbat/caspase_model" }
