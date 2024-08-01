@@ -28,7 +28,7 @@ def run_pysb(model: pysb.Model, times: np.ndarray):
     )
 
 
-def run_simbio(sim: simbio.Compartment, times: np.ndarray):
+def run_simbio(sim: simbio.Simulator, times: np.ndarray):
     from poincare import solvers
 
     return sim.solve(
