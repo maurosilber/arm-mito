@@ -92,7 +92,7 @@ def test_albeck_as_matlab():
         Bcl2c(b=1) % Bid(bf=1, state="T"): Model.r_Bcl2_Bid.AB,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
@@ -194,8 +194,8 @@ def test_corbat_2018():
         Bcl2c(b=1) % Bid(bf=1, state="T"): Model.albeck.r_Bcl2_Bid.AB,
     }
 
-    times = np.linspace(0, 10_000, 1000)
-    sim = Simulator(Model.albeck)
+    times = np.linspace(0, 30_000, 1000)
+    sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
     df_pysb = df_pysb.rename(columns=str).rename(

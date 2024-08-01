@@ -34,7 +34,7 @@ def test_albeck_receptor():
         C8(bf=1, state="pro") % DISC(bf=1): Receptor.r_DISC_C8.ES,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Receptor)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
@@ -113,7 +113,7 @@ def test_albeck11b():
         Smac(bf=1, state="A") % XIAP(bf=1): Model.intrinsic.r_Smac_XIAP.AB,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
@@ -200,7 +200,7 @@ def test_albeck11c():
         Bax(bf=None, s1=1, s2=None, state='A') % Bax(bf=None, s1=None, s2=1, state='A'): Model.Bax_A2,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
@@ -286,7 +286,7 @@ def test_albeck11d():
         Bax(bf=None, s1=None, s2=None, state='M'): Model.mitocondria.Bax_M,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
@@ -372,7 +372,7 @@ def test_albeck11e():
         Mito(bf=None, state='I'): Model.Mito_I,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
@@ -457,7 +457,7 @@ def test_albeck11f():
         Mito(bf=None, state='I'): Model.Mito_I,
     }
 
-    times = np.linspace(0, 10_000, 1000)
+    times = np.linspace(0, 30_000, 1000)
     sim = Simulator(Model)
     df_simbio = common.run_simbio(sim, times)
     df_pysb = common.run_pysb(model, times)
