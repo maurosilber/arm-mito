@@ -1,7 +1,5 @@
 from simbio import Compartment, Parameter, Species, assign, initial, reactions
 
-from .albeck import MOMP
-
 
 class AlbeckAsMatlab(Compartment):
     KF: Parameter = assign(default=1e-6)
@@ -78,12 +76,38 @@ class AlbeckAsMatlab(Compartment):
         reverse_rate=KR,
     )
 
-    mitocondria = MOMP(
-        KF=KF,
-        KR=KR,
-        KC=KC,
-        Bid_U=Bid_U,
-        Bid_T=Bid_T,
+    # Activators
+    Bid_M: Species = initial(default=0)  # truncated andMitocondrial
+
+    # Effectors
+    Bax_C: Species = initial(default=1e5)  # Cytoplasmic
+    Bax_M: Species = initial(default=0)  # Mitochondrial
+    Bax_A: Species = initial(default=0)  # Active
+
+    # Anti-Apoptotics
+    Bcl2: Species = initial(default=2e4)
+
+    # Cytochrome C and Smac
+    CytoC_M: Species = initial(default=1e6)
+    CytoC_C: Species = initial(default=0)
+    CytoC_A: Species = initial(default=0)
+    Smac_M: Species = initial(default=1e6)
+    Smac_C: Species = initial(default=0)
+    Smac_A: Species = initial(default=0)
+
+    # CytoC and Smac activation after release
+    transloc_rate: Parameter = assign(default=1e-2)
+    r_Smac_transloc = reactions.Equilibration(
+        A=Smac_C,
+        B=Smac_A,
+        forward_rate=transloc_rate,
+        reverse_rate=transloc_rate,
+    )
+    r_CytoC_transloc = reactions.Equilibration(
+        A=CytoC_C,
+        B=CytoC_A,
+        forward_rate=transloc_rate,
+        reverse_rate=transloc_rate,
     )
 
     Apaf_I: Species = initial(default=1e5)
@@ -106,7 +130,7 @@ class AlbeckAsMatlab(Compartment):
     #   Apop + pC3 <-->  Apop:pC3 --> Apop + C3
 
     r_CytoC_Apaf = reactions.MichaelisMenten(
-        E=mitocondria.CytoC_A,
+        E=CytoC_A,
         S=Apaf_I,
         ES=0,
         P=Apaf_A,
@@ -144,7 +168,7 @@ class AlbeckAsMatlab(Compartment):
         reverse_rate=KR,
     )
     r_Smac_XIAP = reactions.ReversibleSynthesis(
-        A=mitocondria.Smac_A,
+        A=Smac_A,
         B=XIAP,
         AB=0,
         forward_rate=7e-6,
@@ -208,10 +232,10 @@ class AlbeckAsMatlab(Compartment):
     )
     # MOMP Mechanism
     r_Bid_Bax = reactions.MichaelisMenten(
-        E=mitocondria.Bid_T,
-        S=mitocondria.Bax_C,
+        E=Bid_T,
+        S=Bax_C,
         ES=0,
-        P=mitocondria.Bax_A,
+        P=Bax_A,
         forward_rate=1e-7,
         reverse_rate=KR,
         catalytic_rate=KC,
@@ -220,7 +244,7 @@ class AlbeckAsMatlab(Compartment):
     Bax_M2: Species = initial(default=0)
     Bax_M4: Species = initial(default=0)
     r_Bax_dimerization = reactions.Equilibration(
-        A=2 * mitocondria.Bax_M,
+        A=2 * Bax_M,
         B=Bax_M2,
         forward_rate=KF / mitocondria_volume_fraction,
         reverse_rate=KR,
@@ -234,32 +258,32 @@ class AlbeckAsMatlab(Compartment):
 
     # Bcl2 inhibits Bax, Bax2, and Bax4
     r_Bax_Bcl2 = reactions.ReversibleSynthesis(
-        A=mitocondria.Bax_M,
-        B=mitocondria.Bcl2,
+        A=Bax_M,
+        B=Bcl2,
         AB=0,
         forward_rate=KF / mitocondria_volume_fraction,
         reverse_rate=KR,
     )
     r_Bax2_Bcl2 = reactions.ReversibleSynthesis(
         A=Bax_M2,
-        B=mitocondria.Bcl2,
+        B=Bcl2,
         AB=0,
         forward_rate=KF / mitocondria_volume_fraction,
         reverse_rate=KR,
     )
     r_Bax4_Bcl2 = reactions.ReversibleSynthesis(
         A=Bax_M4,
-        B=mitocondria.Bcl2,
+        B=Bcl2,
         AB=0,
         forward_rate=KF / mitocondria_volume_fraction,
         reverse_rate=KR,
     )
 
     r_Bax_transloc = reactions.Equilibration(
-        A=mitocondria.Bax_A,
-        B=mitocondria.Bax_M,
-        forward_rate=mitocondria.transloc_rate,
-        reverse_rate=mitocondria.transloc_rate,
+        A=Bax_A,
+        B=Bax_M,
+        forward_rate=transloc_rate,
+        reverse_rate=transloc_rate,
     )
 
     Mito_I: Species = initial(default=5e5)
@@ -279,18 +303,18 @@ class AlbeckAsMatlab(Compartment):
     pore_transport_rate: Parameter = assign(default=10)
     r_Smac_pore = reactions.MichaelisMenten(
         E=Mito_A,
-        S=mitocondria.Smac_M,
+        S=Smac_M,
         ES=0,
-        P=mitocondria.Smac_C,
+        P=Smac_C,
         forward_rate=2 * KF / mitocondria_volume_fraction,
         reverse_rate=KR,
         catalytic_rate=pore_transport_rate,
     )
     r_CytoC_pore = reactions.MichaelisMenten(
         E=Mito_A,
-        S=mitocondria.CytoC_M,
+        S=CytoC_M,
         ES=0,
-        P=mitocondria.CytoC_C,
+        P=CytoC_C,
         forward_rate=2 * KF / mitocondria_volume_fraction,
         reverse_rate=KR,
         catalytic_rate=pore_transport_rate,
