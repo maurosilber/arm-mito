@@ -306,3 +306,11 @@ class AlbeckAsMatlab(Compartment):
         forward_rate=KF,
         reverse_rate=KR,
     )
+
+
+class Corbat2018(Compartment):
+    albeck = AlbeckAsMatlab(
+        XIAP=1e2,
+        L=1e3,
+        R=1e3,
+    )
