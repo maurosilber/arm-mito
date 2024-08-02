@@ -1,13 +1,15 @@
 import numpy as np
 import pandas as pd
 from poincare import solvers
+from pytest import mark
 from simbio import Simulator
 
 from ..corbat import IntrinsicARM as ARM
 from ..mito import ARM as ARM_Mito
 
 
-def test_mito():
+@mark.parametrize("stimuli", ["extrinsic", "intrinsic"])
+def test_mito(stimuli):
     mapping = {
         ARM.IntrinsicStimuli: ARM_Mito.IntrinsicStimuli,
         ARM.arm.L: ARM_Mito.L,
@@ -76,15 +78,21 @@ def test_mito():
 
     t = np.linspace(0, 30_000, 1_000)
     solver = solvers.LSODA(atol=1e-6, rtol=1e-6)
+    if stimuli == "extrinsic":
+        extrinsic, intrinsic = 1000, 0
+    elif stimuli == "intrinsic":
+        extrinsic, intrinsic = 0, 200
+    else:
+        raise ValueError(stimuli)
     df_ARM = Simulator(ARM).solve(
         solver=solver,
         save_at=t,
-        values={ARM.arm.L: 1000, ARM.IntrinsicStimuli: 0},
+        values={ARM.arm.L: extrinsic, ARM.IntrinsicStimuli: intrinsic},
     )
     df_Mito = Simulator(ARM_Mito).solve(
         solver=solver,
         save_at=t,
-        values={ARM_Mito.L: 1000, ARM_Mito.IntrinsicStimuli: 0},
+        values={ARM_Mito.L: extrinsic, ARM_Mito.IntrinsicStimuli: intrinsic},
     )
 
     df_ARM.rename(inplace=True, columns={str(k): str(v) for k, v in mapping.items()})
