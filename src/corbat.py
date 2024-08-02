@@ -680,3 +680,18 @@ class ARM(Compartment):
         forward_rate=KF,
         reverse_rate=KR,
     )
+
+
+class IntrinsicARM(Compartment):
+    arm = ARM(L=0)
+    IntrinsicStimuli: Species = initial(default=1e2)
+    # Bid + IntrinsicStimuli <--> Bid:IS --> tBid + IS
+    r_intrinsic = reactions.MichaelisMenten(
+        E=IntrinsicStimuli,
+        S=arm.Bid_U,
+        ES=0,
+        P=arm.Bid_T,
+        forward_rate=arm.KF,
+        reverse_rate=arm.KR,
+        catalytic_rate=arm.KC,
+    )
