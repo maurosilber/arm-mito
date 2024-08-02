@@ -40,7 +40,7 @@ pythonpath = "."
 
 [tool.ruff]
 extend-include = ["*.ipynb"]
-select = ["E", "F", "I"]
+lint.select = ["E", "F", "I"]
 exclude = [
     "src/tests/test_albeck.py",
     "src/tests/test_corbat.py",
