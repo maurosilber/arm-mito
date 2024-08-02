@@ -91,7 +91,7 @@ class Mitochondria(Compartment):
     )
 
 
-class ARM(Compartment):
+class ARM_Cito(Compartment):
     KF: Parameter = assign(default=1e-6)
     KR: Parameter = assign(default=1e-3)
     KC: Parameter = assign(default=1)
@@ -126,16 +126,6 @@ class ARM(Compartment):
     XIAP: Species = initial(default=1e4)
     Bcl2c: Species = initial(default=2e4)
     IntrinsicStimuli: Species = initial(default=0)
-
-    mitocondria = Mitochondria(
-        KF=KF,
-        KR=KR,
-        KC=KC,
-        transloc_rate=transloc_rate,
-        CytoC_C=CytoC_C,
-        Smac_C=Smac_C,
-        Bax_A=Bax_A,
-    )
 
     r_Smac_transloc = reactions.Equilibration(
         A=Smac_C,
@@ -311,4 +301,21 @@ class ARM(Compartment):
         forward_rate=KF,
         reverse_rate=KR,
         catalytic_rate=KC,
+    )
+
+
+class ARM(Compartment):
+    KF: Parameter = assign(default=1e-6)
+    KR: Parameter = assign(default=1e-3)
+    KC: Parameter = assign(default=1)
+    transloc_rate: Parameter = assign(default=1e-2)
+    cytoplasm = ARM_Cito()
+    mitocondria = Mitochondria(
+        KF=KF,
+        KR=KR,
+        KC=KC,
+        transloc_rate=transloc_rate,
+        CytoC_C=cytoplasm.CytoC_C,
+        Smac_C=cytoplasm.Smac_C,
+        Bax_A=cytoplasm.Bax_A,
     )
