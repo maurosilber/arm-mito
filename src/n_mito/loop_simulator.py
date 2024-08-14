@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field, replace
-from typing import Sequence
+from typing import Literal, Sequence, assert_never
 
 import numba
 import numpy as np
@@ -140,12 +140,26 @@ class LoopSimulator:
         loop_values: dict[Variable, ArrayLike] = {},
         solver=LSODA(),
         save_at: ArrayLike,
+        loop_output: Literal["ignore", "sum"] = "ignore",
     ):
         problem = self.create_problem(main_values=main_values, loop_values=loop_values)
         solution = solver(problem, save_at=np.asarray(save_at))
-        variables = self.main_sim.compiled.variables
-        return pd.DataFrame(
-            data=solution.y[:, : len(variables)],
-            index=solution.t,
-            columns=variables,
-        )
+        main_variables = self.main_sim.compiled.variables
+        if loop_output == "ignore":
+            return pd.DataFrame(
+                data=solution.y[:, : len(main_variables)],
+                index=solution.t,
+                columns=main_variables,
+            )
+        elif loop_output == "sum":
+            loop_variables = self.compiled_loop.variables
+            all_variables = [*main_variables, *loop_variables]
+            y = solution.y[:, : len(all_variables)]
+            y[:, len(main_variables) :] = (
+                solution.y[:, len(main_variables) :]
+                .reshape(solution.y.shape[0], -1, len(loop_variables))
+                .sum(1)
+            )
+            return pd.DataFrame(y, index=solution.t, columns=all_variables)
+        else:
+            assert_never(loop_output)
