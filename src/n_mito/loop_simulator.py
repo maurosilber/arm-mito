@@ -4,7 +4,7 @@ from typing import Sequence
 import numba
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike
 from poincare import Variable
 from poincare.compile import (
     Compiled,
@@ -96,7 +96,7 @@ class LoopSimulator:
         self,
         *,
         main_values: dict[Variable, float] = {},
-        loop_values: dict[Variable, NDArray] = {},
+        loop_values: dict[Variable, ArrayLike] = {},
     ):
         problem_main = self.main_sim.create_problem(values=main_values)
 
@@ -121,7 +121,7 @@ class LoopSimulator:
         self,
         *,
         main_values: dict[Variable, float] = {},
-        loop_values: dict[Variable, NDArray] = {},
+        loop_values: dict[Variable, ArrayLike] = {},
     ):
         y, p = self.create_initials(main_values=main_values, loop_values=loop_values)
         return Problem(
@@ -137,9 +137,9 @@ class LoopSimulator:
         self,
         *,
         main_values: dict[Variable, float] = {},
-        loop_values: dict[Variable, NDArray] = {},
+        loop_values: dict[Variable, ArrayLike] = {},
         solver=LSODA(),
-        save_at: NDArray,
+        save_at: ArrayLike,
     ):
         problem = self.create_problem(main_values=main_values, loop_values=loop_values)
         solution = solver(problem, save_at=np.asarray(save_at))
