@@ -140,7 +140,7 @@ class LoopSimulator:
         loop_values: dict[Variable, ArrayLike] = {},
         solver=LSODA(),
         save_at: ArrayLike,
-        loop_output: Literal["ignore", "sum"] = "ignore",
+        loop_output: Literal["ignore", "sum", "index_as_suffix"] = "ignore",
     ):
         problem = self.create_problem(main_values=main_values, loop_values=loop_values)
         solution = solver(problem, save_at=np.asarray(save_at))
@@ -161,5 +161,13 @@ class LoopSimulator:
                 .sum(1)
             )
             return pd.DataFrame(y, index=solution.t, columns=all_variables)
+        elif loop_output == "index_as_suffix":
+            loop_variables = self.compiled_loop.variables
+            all_variables = list(main_variables)
+            for i in range(
+                (solution.y.shape[1] - len(all_variables)) // len(loop_variables)
+            ):
+                all_variables.extend(f"{k}_{i}" for k in loop_variables)
+            return pd.DataFrame(solution.y, index=solution.t, columns=all_variables)
         else:
             assert_never(loop_output)
