@@ -5,7 +5,7 @@ class Mitochondria(Compartment):
     KF: Parameter = assign(default=1e-6)
     KR: Parameter = assign(default=1e-3)
     KC: Parameter = assign(default=1)
-    volume: Parameter = assign(default=0.07)
+    area: Parameter = assign(default=0.07)
     pore_transport_rate: Parameter = assign(default=10)
     transloc_rate: Parameter = assign(default=1e-2)
 
@@ -32,34 +32,34 @@ class Mitochondria(Compartment):
     r_Bax_dimerization = reactions.Equilibration(
         A=2 * Bax,
         B=Bax2,
-        forward_rate=KF / volume,
+        forward_rate=KF / area,
         reverse_rate=KR,
     )
     r_Bax_tetramerization = reactions.Equilibration(
         A=2 * Bax2,
         B=Bax4,
-        forward_rate=KF / volume,
+        forward_rate=KF / area,
         reverse_rate=KR,
     )
     r_Bax_Bcl2 = reactions.ReversibleSynthesis(
         A=Bax,
         B=Bcl2,
         AB=0,
-        forward_rate=KF / volume,
+        forward_rate=KF / area,
         reverse_rate=KR,
     )
     r_Bax2_Bcl2 = reactions.ReversibleSynthesis(
         A=Bax2,
         B=Bcl2,
         AB=0,
-        forward_rate=KF / volume,
+        forward_rate=KF / area,
         reverse_rate=KR,
     )
     r_Bax4_Bcl2 = reactions.ReversibleSynthesis(
         A=Bax4,
         B=Bcl2,
         AB=0,
-        forward_rate=KF / volume,
+        forward_rate=KF / area,
         reverse_rate=KR,
     )
     r_Bax4_Mito = reactions.CatalyzeConvert(
@@ -67,7 +67,7 @@ class Mitochondria(Compartment):
         B=Mito_I,
         AB=0,
         P=Mito_A,
-        forward_rate=KF / volume,
+        forward_rate=KF / area,
         reverse_rate=KR,
         conversion_rate=KC,
     )
@@ -76,7 +76,7 @@ class Mitochondria(Compartment):
         S=Smac_M,
         ES=0,
         P=Smac_C,
-        forward_rate=2 * KF / volume,
+        forward_rate=2 * KF / area,
         reverse_rate=KR,
         catalytic_rate=pore_transport_rate,
     )
@@ -85,7 +85,7 @@ class Mitochondria(Compartment):
         S=CytoC_M,
         ES=0,
         P=CytoC_C,
-        forward_rate=2 * KF / volume,
+        forward_rate=2 * KF / area,
         reverse_rate=KR,
         catalytic_rate=pore_transport_rate,
     )
