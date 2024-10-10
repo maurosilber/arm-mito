@@ -239,8 +239,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.20.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.6-hb46c0d2_0.conda
       - pypi: https://files.pythonhosted.org/packages/8c/6f/8702ef324cf2e176949384522005af9d8ba9a2a198e3d0fa7f5c45559fa7/SimBio-0.4.0-py3-none-any.whl
-      - pypi: /Users/maurosilber/git/doctorado/rebop/target/wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl
       - pypi: .
+      - pypi: wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl
   lint:
     channels:
     - url: https://fast.prefix.dev/conda-forge/
@@ -414,8 +414,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/xz-5.2.6-h57fd34a_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.6-hb46c0d2_0.conda
       - pypi: https://files.pythonhosted.org/packages/8c/6f/8702ef324cf2e176949384522005af9d8ba9a2a198e3d0fa7f5c45559fa7/SimBio-0.4.0-py3-none-any.whl
-      - pypi: /Users/maurosilber/git/doctorado/rebop/target/wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl
       - pypi: .
+      - pypi: wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl
   test:
     channels:
     - url: https://fast.prefix.dev/conda-forge/
@@ -1692,27 +1692,6 @@ packages:
   - pkg:pypi/jupyter-client?source=hash-mapping
   size: 106055
   timestamp: 1726610805505
-- kind: conda
-  name: jupyter_core
-  version: 5.7.2
-  build: pyh31011fe_1
-  build_number: 1
-  subdir: noarch
-  noarch: python
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.7.2-pyh31011fe_1.conda
-  sha256: 732b1e8536bc22a5a174baa79842d79db2f4956d90293dd82dc1b3f6099bcccd
-  md5: 0a2980dada0dd7fd0998f0342308b1b1
-  depends:
-  - __unix
-  - platformdirs >=2.5
-  - python >=3.8
-  - traitlets >=5.3
-  license: BSD-3-Clause
-  license_family: BSD
-  purls:
-  - pkg:pypi/jupyter-core?source=hash-mapping
-  size: 57671
-  timestamp: 1727163547058
 - kind: conda
   name: jupyter_core
   version: 5.7.2
@@ -4039,7 +4018,7 @@ packages:
 - kind: pypi
   name: rebop
   version: 0.8.3
-  path: /Users/maurosilber/git/doctorado/rebop/target/wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl
+  path: wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl
   requires_dist:
   - xarray>=2023.1
   requires_python: '>=3.10'
@@ -4501,23 +4480,6 @@ packages:
   - pkg:pypi/tqdm?source=hash-mapping
   size: 89519
   timestamp: 1722737568509
-- kind: conda
-  name: traitlets
-  version: 5.14.3
-  build: pyhd8ed1ab_0
-  subdir: noarch
-  noarch: python
-  url: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.14.3-pyhd8ed1ab_0.conda
-  sha256: 8a64fa0f19022828513667c2c7176cfd125001f3f4b9bc00d33732e627dd2592
-  md5: 3df84416a021220d8b5700c613af2dc5
-  depends:
-  - python >=3.8
-  license: BSD-3-Clause
-  license_family: BSD
-  purls:
-  - pkg:pypi/traitlets?source=hash-mapping
-  size: 110187
-  timestamp: 1713535244513
 - kind: conda
   name: traitlets
   version: 5.14.3

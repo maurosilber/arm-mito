@@ -52,7 +52,7 @@ tqdm = ">=4.66.5"
 typer = ">=0.12.5"
 
 [feature.rebop.pypi-dependencies]
-rebop = { path = "/Users/maurosilber/git/doctorado/rebop/target/wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl" }
+rebop = { path = "wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl" }
 
 [feature.numba.dependencies]
 numba = "*"
