@@ -1,23 +1,77 @@
 [project]
 name = "arm-mito"
 version = "0.1.0"
-description = "Add a short description here"
+description = ""
 authors = ["Mauro Silberberg <maurosilber@gmail.com>"]
-channels = ["conda-forge", "alubbock"]
+channels = ["https://fast.prefix.dev/conda-forge"]
 platforms = ["osx-arm64"]
 
-[tasks]
-
 [dependencies]
-poincare = ">=0.5.0,<0.6"
-ipykernel = ">=6.29.5,<6.30"
-matplotlib = ">=3.9.1,<3.10"
-numba = ">=0.60.0,<0.61"
-pysb = ">=1.16.0,<1.17"
-pytest = ">=8.2.2,<8.3"
-pre-commit = ">=3.7.1,<3.8"
+poincare = "*"
 
 [pypi-dependencies]
-simbio = ">=0.4.0, <0.5"
+arm = { path = ".", editable = true }
+simbio = "*"
+
+[feature.test.dependencies]
+pytest = "*"
+
+[feature.pysb]
+channels = ["alubbock"]
+dependencies = { pysb = "*" }
+
+[feature.pysb.pypi-dependencies]
 earm = { git = "https://github.com/acorbat/earm" }
 caspase-model = { git = "https://github.com/acorbat/caspase_model" }
+
+[feature.plot.dependencies]
+ipykernel = ">=6.29.5,<7"
+ipywidgets = "*"
+matplotlib = "*"
+polars = "*"
+seaborn = "*"
+pyarrow = ">=17.0.0,<18"
+pint = ">=0.24.3,<0.25"
+pint-pandas = ">=0.6.2,<0.7"
+jinja2 = ">=3.1.4,<4"
+
+[feature.rebop]
+platforms = ["osx-arm64", "linux-64"]
+system-requirements = { linux = "3.10", libc = "2.17" }
+
+[feature.rebop.tasks]
+simulations = { cmd = "python runner.py", cwd = "notebooks/simbio_rebop" }
+upload = { cmd = "rsync -a --progress ARM$N yoda@yoda:maurosilber/arm-mito/results", cwd = "notebooks/rebop/results" }
+download = { cmd = "rsync -a --progress yoda@yoda:maurosilber/arm-mito/results/ARM$N .", cwd = "notebooks/rebop/results" }
+sync = { cmd = "pixi run upload && pixi run download", cwd = "notebooks/rebop/results" }
+
+[feature.rebop.dependencies]
+xarray = "*"
+pyarrow = ">=17.0.0"
+tqdm = ">=4.66.5"
+typer = ">=0.12.5"
+
+[feature.rebop.pypi-dependencies]
+rebop = { path = "/Users/maurosilber/git/doctorado/rebop/target/wheels/rebop-0.8.3-cp310-abi3-macosx_11_0_arm64.whl" }
+
+[feature.numba.dependencies]
+numba = "*"
+
+[feature.lint.tasks]
+setup = "pre-commit install"
+lint = "pre-commit run"
+
+[feature.lint.dependencies]
+pre-commit = "*"
+taplo = "*"
+ruff = "*"
+mdformat = "*"
+
+[feature.lint.pypi-dependencies]
+mdformat-ruff = "*"
+
+[environments]
+lint = { features = ["lint"], no-default-feature = true }
+test = ["test", "pysb"]
+rebop = ["rebop"]
+dev = ["rebop", "plot", "numba", "test"]

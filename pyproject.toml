@@ -4,20 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arm"
-authors = [
-    { name="Mauro Silberberg", email="maurosilber@gmail.com" },
-]
+authors = [{ name = "Mauro Silberberg", email = "maurosilber@gmail.com" }]
 description = ""
 requires-python = ">=3.7"
-keywords = [
-]
+keywords = []
 license = { file = "LICENSE" }
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
 ]
 dynamic = ["version"]
 
@@ -41,7 +38,4 @@ pythonpath = "."
 [tool.ruff]
 extend-include = ["*.ipynb"]
 lint.select = ["E", "F", "I"]
-exclude = [
-    "src/tests/test_albeck.py",
-    "src/tests/test_corbat.py",
-]
+exclude = ["src/tests/test_albeck.py", "src/tests/test_corbat.py"]
