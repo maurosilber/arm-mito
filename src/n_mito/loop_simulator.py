@@ -102,17 +102,24 @@ class LoopSimulator:
 
         y = [problem_main.y]
         p = [problem_main.p]
-        mask = np.array(
+        mask_y = np.array(
             [
                 i
                 for i, x in enumerate(self.loop_sim.compiled.variables)
                 if x in self.compiled_loop.variables
             ]
         )
+        mask_p = np.array(
+            [
+                i
+                for i, x in enumerate(self.loop_sim.compiled.parameters)
+                if x in self.compiled_loop.parameters
+            ]
+        )
         for _, values in pd.DataFrame(loop_values).iterrows():
             problem_loop = self.loop_sim.create_problem(values=values.to_dict())
-            y.append(problem_loop.y[mask])
-            p.append(problem_loop.p)
+            y.append(problem_loop.y[mask_y])
+            p.append(problem_loop.p[mask_p])
         y = np.concatenate(y)
         p = np.concatenate(p)
         return y, p
