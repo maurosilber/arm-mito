@@ -244,8 +244,6 @@ environments:
   lint:
     channels:
     - url: https://fast.prefix.dev/conda-forge/
-    indexes:
-    - https://pypi.org/simple
     packages:
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/attrs-24.2.0-pyh71513ae_0.conda
@@ -269,6 +267,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libzlib-1.3.1-h8359307_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mdformat-0.7.17-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mdformat-ruff-0.1.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mdurl-0.1.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/nbformat-5.10.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/nbstripout-0.7.1-pyhd8ed1ab_0.conda
@@ -298,7 +297,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/xz-5.2.6-h57fd34a_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h3422bc3_2.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.20.2-pyhd8ed1ab_0.conda
-      - pypi: https://files.pythonhosted.org/packages/b1/22/3f2464d478f145bbcb731cee9fe720b9e4d69efb6ffd8bc4491f14ca20a2/mdformat_ruff-0.1.3-py3-none-any.whl
   rebop:
     channels:
     - url: https://fast.prefix.dev/conda-forge/
@@ -2818,14 +2816,22 @@ packages:
   - pkg:pypi/mdformat?source=hash-mapping
   size: 29291
   timestamp: 1692965505906
-- kind: pypi
+- kind: conda
   name: mdformat-ruff
   version: 0.1.3
-  url: https://files.pythonhosted.org/packages/b1/22/3f2464d478f145bbcb731cee9fe720b9e4d69efb6ffd8bc4491f14ca20a2/mdformat_ruff-0.1.3-py3-none-any.whl
-  sha256: 9c0cf7bfe6bf99b9e0e617e960041d06e9fa84300d5645f922306dd2ed0d1296
-  requires_dist:
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/mdformat-ruff-0.1.3-pyhd8ed1ab_0.conda
+  sha256: 2bab2e111bdc6c3e36b99ed29a5a9d645f5f82b56eee71eaf5bb9fd3252e3b6c
+  md5: 147359b666755e59c33e0c2205b7646e
+  depends:
+  - python >=3.7.0,<4.0.0
   - ruff
-  requires_python: '>=3.7,<4.0'
+  license: MIT
+  license_family: MIT
+  size: 9756
+  timestamp: 1728868054494
 - kind: conda
   name: mdurl
   version: 0.1.2

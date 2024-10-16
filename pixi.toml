@@ -66,10 +66,8 @@ pre-commit = "*"
 taplo = "*"
 ruff = "*"
 mdformat = "*"
-nbstripout = "*"
-
-[feature.lint.pypi-dependencies]
 mdformat-ruff = "*"
+nbstripout = "*"
 
 [environments]
 lint = { features = ["lint"], no-default-feature = true }
