@@ -1,10 +1,17 @@
+import functools
+import itertools
 from typing import Protocol, cast
 
+import numpy as np
 import rebop
 import xarray
-from simbio import Compartment, MassAction, Simulator
+from numpy.typing import ArrayLike
+from poincare import Variable
+from simbio import Compartment, Constant, MassAction, Parameter, Simulator, Species
 from symbolite.core import evaluate
 from symbolite.impl import libstd
+
+type VALUES = Species | Parameter | Constant
 
 
 class Rebop(Protocol):
@@ -19,7 +26,7 @@ class Rebop(Protocol):
     ) -> xarray.Dataset: ...
 
 
-def to_rebop(model: type[Compartment], /, values: dict = {}):
+def to_rebop(model: type[Compartment], /, values: dict[VALUES, float] = {}):
     sim = Simulator(model)
     problem = sim.create_problem(values)
     p = dict(zip(sim.compiled.parameters, problem.p))
@@ -40,39 +47,64 @@ def to_rebop_loopy(
     model: type[Compartment],
     loop: Compartment,
     /,
-    N: int,
-    values: dict = {},
+    values_main: dict[VALUES, float] = {},
+    values_loop: dict[VALUES, ArrayLike] = {},
 ):
-    sim = Simulator(model)
-    problem = sim.create_problem(values)
-    p = dict(zip(sim.compiled.parameters, problem.p))
-    y = {}
-    for k, v in zip(sim.compiled.variables, problem.y):
-        k = str(k)
-        if k.startswith(loop.name):
-            v = int(v / N)
-            for i in range(N):
-                y[k.replace(loop.name, f"{loop.name}_{i}")] = v
-        else:
-            y[k] = int(v)
+    @functools.cache
+    def is_loop_var(x: VALUES, /) -> bool:
+        parent = x.parent
+        while parent is not None and parent is not model:
+            if parent is loop:
+                return True
+            parent = parent.parent
+        return False
 
+    def is_loop_reaction(reaction: MassAction, /) -> bool:
+        components = itertools.chain(reaction.reactants, reaction.products)
+        return any(map(is_loop_var, components))
+
+    def variable_to_str(
+        variable: Variable | Parameter | Constant, loop_index: int, /
+    ) -> str:
+        name = str(variable)
+        if is_loop_var(variable):
+            name = name.replace(loop.name, f"{loop.name}_{loop_index}")
+        return name
+
+    sim = Simulator(model)
+    y: dict[str, int] = {}
     reactions = []
-    for r in model._yield(MassAction):
-        rate = evaluate(r.rate.subs(p), libsl=libstd)
-        reactants = [
-            str(s.variable) for s in r.reactants for _ in range(s.stoichiometry)
-        ]
-        products = [str(s.variable) for s in r.products for _ in range(s.stoichiometry)]
-        if any(r.startswith(loop.name) for r in [*reactants, *products]):
-            for i in range(N):
-                reactions.append(
-                    (
-                        rate,
-                        [r.replace(loop.name, f"{loop.name}_{i}") for r in reactants],
-                        [r.replace(loop.name, f"{loop.name}_{i}") for r in products],
-                    )
-                )
-        else:
+
+    values = values_main.copy()
+    for loop_ix, loop_vals in enumerate(
+        zip(*np.broadcast_arrays(*values_loop.values()))
+    ):
+        values.update(zip(values_loop.keys(), loop_vals))
+        problem = sim.create_problem(values)
+
+        y.update(
+            zip(
+                (variable_to_str(v, loop_ix) for v in sim.compiled.variables),
+                map(int, problem.y),
+            )
+        )
+        p = dict(zip(sim.compiled.parameters, problem.p))
+
+        for r in model._yield(MassAction):
+            if loop_ix > 0 and not is_loop_reaction(r):
+                continue
+
+            rate = evaluate(r.rate.subs(p), libsl=libstd)
+            reactants = [
+                variable_to_str(s.variable, loop_ix)
+                for s in r.reactants
+                for _ in range(s.stoichiometry)
+            ]
+            products = [
+                variable_to_str(s.variable, loop_ix)
+                for s in r.products
+                for _ in range(s.stoichiometry)
+            ]
             reactions.append((rate, reactants, products))
 
     return reactions, y

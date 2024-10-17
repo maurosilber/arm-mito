@@ -1,20 +1,27 @@
 import xarray
+from numpy.typing import ArrayLike
+from simbio import Constant, Parameter, Species
 from simbio_rebop.converter import create_rebop, to_rebop_loopy
 
 from mito import ARM
 
 
-def create(*, N: int, volume: float, L, Intrinsic):
+def create(
+    *,
+    volume: float,
+    L: float,
+    Intrinsic: float,
+    loop_values: dict[Species | Parameter | Constant, ArrayLike],
+):
     reactions, y = to_rebop_loopy(
         ARM,
         ARM.mitocondria,
-        N=N,
-        values={
+        values_main={
             ARM.L_concentration: L,
             ARM.IntrinsicStimuli_concentration: Intrinsic,
             ARM.volume: volume,
-            ARM.mitocondria_volume_fraction: 0.07 / N,
         },
+        values_loop=loop_values,
     )
     runner = create_rebop(reactions)
     return runner, y
