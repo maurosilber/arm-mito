@@ -14,23 +14,18 @@ from poincare.compile import (
 )
 from poincare.simulator import Problem
 from poincare.solvers import LSODA
-from simbio import Compartment, Simulator, Species
+from simbio import Compartment, Simulator
 
 
 @dataclass(repr=False)
 class LoopSimulator:
     main: type[Compartment]
-    loop: type[Compartment]
-    main_variables_in_loop: Sequence[Variable]
+    loop: Compartment
     compiled_loop: Compiled[Variable, str] = field(init=False)
 
     def __post_init__(self):
         self.main_sim = Simulator(self.main)
         self.loop_sim = Simulator(self.loop)
-        self.main_variables_in_loop = [
-            x.variable if isinstance(x, Species) else x
-            for x in self.main_variables_in_loop
-        ]
         self.compiled_loop = self._build_loop(self.main_sim.compiled)
         self.func = self._compile_func()
         self.func = numba.njit(self.func)
@@ -38,15 +33,29 @@ class LoopSimulator:
     def _build_loop(self, external: Compiled):
         symbolic = build_first_order_symbolic_ode(self.loop)
 
-        to_exclude = set(self.main_variables_in_loop)
-        variables = [v for v in symbolic.variables if v not in to_exclude]
+        def is_not_from_main(x: Variable):
+            parent = x.parent
+            while parent is not None and parent is not self.main:
+                if parent is self.loop:
+                    return True
+                parent = parent.parent
+            return False
+
+        main_variables = []
+        loop_variables = []
+        for v in symbolic.variables:
+            if is_not_from_main(v):
+                loop_variables.append(v)
+            else:
+                main_variables.append(v)
+
         parameters = list(symbolic.parameters)
 
         mapping = {symbolic.independent[0]: "t"}
-        for y_ext in self.main_variables_in_loop:
+        for y_ext in main_variables:
             ix = external.variables.index(y_ext)
             mapping[y_ext] = f"y[{ix}]"
-        for i, y in enumerate(variables):
+        for i, y in enumerate(loop_variables):
             mapping[y] = f"y[y_offset + {i}]"
         for i, p in enumerate(parameters):
             mapping[p] = f"p[p_offset + {i}]"
@@ -55,7 +64,7 @@ class LoopSimulator:
 
         y_offset = len(external.variables)
         p_offset = len(external.parameters)
-        y_step = len(variables)
+        y_step = len(loop_variables)
         p_step = len(parameters)
         indent = 4 * " "
         lines = [
@@ -67,12 +76,12 @@ class LoopSimulator:
         for k, eq in diff_eqs.items():
             ix = mapping.get(k).removeprefix("y")
             left = f"ydot{ix}"
-            if k in self.main_variables_in_loop:
+            if k in main_variables:
                 lines.append(f"{indent}{left} += {eq}")
             else:
                 lines.append(f"{indent}{left} = {eq}")
         loop = "\n".join(lines)
-        return replace(symbolic, func=loop, variables=variables)
+        return replace(symbolic, func=loop, variables=loop_variables)
 
     def build_func(self):
         compiled = build_first_order_vectorized_body(self.main)
