@@ -34,6 +34,7 @@ pyarrow = ">=17.0.0,<18"
 pint = ">=0.24.3,<0.25"
 pint-pandas = ">=0.6.2,<0.7"
 jinja2 = ">=3.1.4,<4"
+python-ternary = ">=1.0.8,<2"
 
 [feature.rebop]
 platforms = ["osx-arm64", "linux-64"]
