@@ -64,7 +64,7 @@ class Mitochondria(Compartment):
     r_Bax_transloc = reactions.Equilibration(
         A=Bax_A,
         B=Bax,
-        forward_rate=transloc_rate,
+        forward_rate=transloc_rate * volume,
         reverse_rate=transloc_rate,
     )
 
