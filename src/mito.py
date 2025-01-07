@@ -1,7 +1,6 @@
 from simbio import (
     Compartment,
     Constant,
-    MassAction,
     Parameter,
     Species,
     assign,
@@ -10,33 +9,17 @@ from simbio import (
 )
 
 
-def _add_volume_factor(model: type[Compartment], volume):
-    for r in model._yield(MassAction):
-        power = 1 - sum(s.stoichiometry for s in r.reactants)
-        match power:
-            case 0:
-                pass
-            case 1:
-                r.rate = r.rate * volume
-            case -1:
-                r.rate = r.rate / volume
-            case _:
-                raise NotImplementedError
-
-        r.equations = tuple(r._yield_equations())
-
-
 class Mitochondria(Compartment):
+    volume_cell: Constant = assign(constant=True)
     volume: Constant = assign(default=0.07, constant=True)
     _Albeck_volume_fraction = 0.07
+    normalized_volume = volume / _Albeck_volume_fraction
 
     KF: Parameter = assign(default=1e-6)
     KR: Parameter = assign(default=1e-3)
     KC: Parameter = assign(default=1)
-    pore_transport_rate: Parameter = assign(
-        default=10 / _Albeck_volume_fraction * volume
-    )
-    transloc_rate: Parameter = assign(default=1e-2 / _Albeck_volume_fraction * volume)
+    pore_transport_rate: Parameter = assign(default=10)
+    transloc_rate: Parameter = assign(default=1e-2)
 
     CytoC_C: Species = initial()
     Smac_C: Species = initial()
@@ -64,8 +47,8 @@ class Mitochondria(Compartment):
     r_Bax_transloc = reactions.Equilibration(
         A=Bax_A,
         B=Bax,
-        forward_rate=transloc_rate * volume,
-        reverse_rate=transloc_rate,
+        forward_rate=transloc_rate / (volume_cell / normalized_volume),
+        reverse_rate=transloc_rate / (normalized_volume / volume_cell),
     )
 
     r_Bax_dimerization = reactions.Equilibration(
@@ -117,7 +100,7 @@ class Mitochondria(Compartment):
         P=Smac_C,
         forward_rate=2 * KF / volume,
         reverse_rate=KR,
-        catalytic_rate=pore_transport_rate,
+        catalytic_rate=pore_transport_rate * volume_cell / normalized_volume,
     )
     r_CytoC_pore = reactions.MichaelisMenten(
         E=Mito_A,
@@ -126,7 +109,7 @@ class Mitochondria(Compartment):
         P=CytoC_C,
         forward_rate=2 * KF / volume,
         reverse_rate=KR,
-        catalytic_rate=pore_transport_rate,
+        catalytic_rate=pore_transport_rate * volume_cell / normalized_volume,
     )
 
 
@@ -372,6 +355,7 @@ class ARM(Compartment):
         IntrinsicStimuli=IntrinsicStimuli,
     )
     mitocondria = Mitochondria(
+        volume_cell=volume,
         volume=mitocondria_volume,
         KF=KF,
         KR=KR,
