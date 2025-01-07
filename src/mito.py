@@ -12,6 +12,7 @@ from simbio import (
 class Mitochondria(Compartment):
     volume_cell: Constant = assign(constant=True)
     volume: Constant = assign(default=0.07, constant=True)
+    power: Constant = assign(default=1, constant=True)
     _Albeck_volume_fraction = 0.07
     normalized_volume = volume / _Albeck_volume_fraction
 
@@ -47,7 +48,9 @@ class Mitochondria(Compartment):
     r_Bax_transloc = reactions.Equilibration(
         A=Bax_A,
         B=Bax,
-        forward_rate=transloc_rate / (volume_cell / normalized_volume),
+        forward_rate=transloc_rate
+        / (volume_cell / normalized_volume)
+        * (normalized_volume) ** power,
         reverse_rate=transloc_rate / (normalized_volume / volume_cell),
     )
 
