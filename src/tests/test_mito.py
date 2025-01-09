@@ -21,7 +21,7 @@ def test_mito(stimuli):
         ARM.arm.BAR: ARM_split.cytoplasm.BAR,
         ARM.arm.Bid_U: ARM_split.cytoplasm.Bid_U,
         ARM.arm.Bid_T: ARM_split.cytoplasm.Bid_T,
-        ARM.arm.Bid_M: ARM_split.cytoplasm.Bid_M,
+        # ARM.arm.Bid_M: ARM_split.cytoplasm.Bid_M,
         ARM.arm.Bax_C: ARM_split.cytoplasm.Bax_C,
         ARM.arm.Bax_M: ARM_split.mitocondria.Bax,
         ARM.arm.Bax_A: ARM_split.cytoplasm.Bax_A,
