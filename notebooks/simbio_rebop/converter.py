@@ -1,10 +1,8 @@
 import functools
 import itertools
-from typing import Protocol, cast
 
 import numpy as np
 import rebop
-import xarray
 from numpy.typing import ArrayLike
 from poincare import Variable
 from simbio import Compartment, Constant, MassAction, Parameter, Simulator, Species
@@ -12,18 +10,6 @@ from symbolite.core import evaluate
 from symbolite.impl import libstd
 
 type VALUES = Species | Parameter | Constant
-
-
-class Rebop(Protocol):
-    def add_reaction(self, rate: float, reactants: list[str], products: list[str]): ...
-    def run(
-        self,
-        values: dict[str, int],
-        /,
-        tmax: float,
-        nb_steps: int,
-        seed: int | None = None,
-    ) -> xarray.Dataset: ...
 
 
 def to_rebop(model: type[Compartment], /, values: dict[VALUES, float] = {}):
@@ -111,7 +97,7 @@ def to_rebop_loopy(
 
 
 def create_rebop(reactions):
-    runner = cast(Rebop, rebop.Gillespie())
+    runner = rebop.Gillespie()
     for r in sorted(reactions):
         runner.add_reaction(*r)
     return runner

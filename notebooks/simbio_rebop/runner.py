@@ -42,8 +42,8 @@ class Model:
             self.y,
             tmax=t_max,
             nb_steps=t_max,
-            seed=seed,
-            save=self.save,
+            rng=seed,
+            var_names=self.save,
             sparse=True,
         ).to_dataframe()
         df[sorted(df.columns)].to_parquet(p, compression="zstd")
