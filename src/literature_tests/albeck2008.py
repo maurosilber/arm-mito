@@ -5,7 +5,7 @@ Authors: John G Albeck,  John M Burke,  Sabrina L Spencer,  Douglas A Lauffenbur
 """
 
 import pandas as pd
-import pint_pandas
+import pint_pandas  # noqa: F401
 
 
 def test_onset():
