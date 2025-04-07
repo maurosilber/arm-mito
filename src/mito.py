@@ -331,6 +331,38 @@ class ARM_Cito(Compartment):
         catalytic_rate=KC,
     )
 
+    # Sensors
+    caspam_0: Constant = assign(default=7.5e5 * volume, constant=True)
+    caspam = CASPAM(concentration=caspam_0)
+    r_sCas3 = SensorReaction(
+        enzyme=C3_A,
+        sensor=caspam.sCas3,
+        forward_rate=2.8e-7 * 2,
+        reverse_rate=1e-2,
+        catalytic_rate=KC,
+    )
+    r_sCas8 = SensorReaction(
+        enzyme=C8_A,
+        sensor=caspam.sCas8,
+        forward_rate=5.4e-8 * 2,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_sCas9_Apop = SensorReaction(
+        enzyme=Apop,
+        sensor=caspam.sCas9,
+        forward_rate=2.8e-7 * 2,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_sCas9_Apaf = SensorReaction(
+        enzyme=Apaf_A,
+        sensor=caspam.sCas9,
+        forward_rate=2e-10 * 2,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+
 
 class ARM(Compartment):
     volume: Constant = assign(default=1, constant=True)
@@ -369,36 +401,4 @@ class ARM(Compartment):
         CytoC_C=cytoplasm.CytoC_C,
         Smac_C=cytoplasm.Smac_C,
         Bax_A=cytoplasm.Bax_A,
-    )
-
-    # Sensors
-    caspam_0: Constant = assign(default=7.5e5 * volume, constant=True)
-    caspam = CASPAM(concentration=caspam_0)
-    r_sCas3 = SensorReaction(
-        enzyme=cytoplasm.C3_A,
-        sensor=caspam.sCas3,
-        forward_rate=2.8e-7 * 2,
-        reverse_rate=1e-2,
-        catalytic_rate=KC,
-    )
-    r_sCas8 = SensorReaction(
-        enzyme=cytoplasm.C8_A,
-        sensor=caspam.sCas8,
-        forward_rate=5.4e-8 * 2,
-        reverse_rate=KR,
-        catalytic_rate=KC,
-    )
-    r_sCas9_Apop = SensorReaction(
-        enzyme=cytoplasm.Apop,
-        sensor=caspam.sCas9,
-        forward_rate=2.8e-7 * 2,
-        reverse_rate=KR,
-        catalytic_rate=KC,
-    )
-    r_sCas9_Apaf = SensorReaction(
-        enzyme=cytoplasm.Apaf_A,
-        sensor=caspam.sCas9,
-        forward_rate=2e-10 * 2,
-        reverse_rate=KR,
-        catalytic_rate=KC,
     )
