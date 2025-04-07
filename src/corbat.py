@@ -1,4 +1,6 @@
-from simbio import Compartment, Parameter, Species, assign, initial, reactions
+from simbio import Compartment, Constant, Parameter, Species, assign, initial, reactions
+
+from sensors import CASPAM, SensorReaction
 
 
 class AlbeckAsMatlab(Compartment):
@@ -679,6 +681,38 @@ class ARM(Compartment):
         AB=0,
         forward_rate=KF,
         reverse_rate=KR,
+    )
+
+    # Sensors
+    caspam_0: Constant = assign(default=7.5e5, constant=True)
+    caspam = CASPAM(concentration=caspam_0)
+    r_sCas3 = SensorReaction(
+        enzyme=C3_A,
+        sensor=caspam.sCas3,
+        forward_rate=2.8e-7 * 2,
+        reverse_rate=1e-2,
+        catalytic_rate=KC,
+    )
+    r_sCas8 = SensorReaction(
+        enzyme=C8_A,
+        sensor=caspam.sCas8,
+        forward_rate=5.4e-8 * 2,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_sCas9_Apop = SensorReaction(
+        enzyme=Apop,
+        sensor=caspam.sCas9,
+        forward_rate=2.8e-7 * 2,
+        reverse_rate=KR,
+        catalytic_rate=KC,
+    )
+    r_sCas9_Apaf = SensorReaction(
+        enzyme=Apaf_A,
+        sensor=caspam.sCas9,
+        forward_rate=2e-10 * 2,
+        reverse_rate=KR,
+        catalytic_rate=KC,
     )
 
 

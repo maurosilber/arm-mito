@@ -216,7 +216,7 @@ def test_arm():
 
     from ..corbat import ARM as Model
 
-    model = arm(stimuli="extrinsic", add_CASPAM=False)
+    model = arm(stimuli="extrinsic", add_CASPAM=True)
     pysb.util.alias_model_components()
 
     mapping = {
@@ -296,6 +296,16 @@ def test_arm():
         Apaf(bf=1, state='A') % C3(bf=1, state='A'): Model.r_C3A_ApafA.ES,
         Apaf(bf=1, state='A') % C3(bf=1, state='pro'): Model.r_ApafA_C3pro.ES,
         Apaf(bf=1, state='A') % XIAP(bf=1): Model.r_ApafA_XIAP.AB,
+        sCas3(sl=1, bf=None) % sCas3(sl=1, bf=None): Model.caspam.sCas3.dimer,
+        sCas3(sl=None, bf=None): Model.caspam.sCas3.monomer,
+        sCas8(sl=1, bf=None) % sCas8(sl=1, bf=None): Model.caspam.sCas8.dimer,
+        sCas8(sl=None, bf=None): Model.caspam.sCas8.monomer,
+        sCas9(sl=1, bf=None) % sCas9(sl=1, bf=None): Model.caspam.sCas9.dimer,
+        sCas9(sl=None, bf=None): Model.caspam.sCas9.monomer,
+        Apaf(bf=1, state='A') % sCas9(sl=2, bf=1) % sCas9(sl=2, bf=None): Model.r_sCas9_Apaf.r.ES,
+        Apop(bf=1) % sCas9(sl=2, bf=1) % sCas9(sl=2, bf=None): Model.r_sCas9_Apop.r.ES,
+        C3(bf=1, state='A') % sCas3(sl=2, bf=1) % sCas3(sl=2, bf=None): Model.r_sCas3.r.ES,
+        C8(bf=1, state='A') % sCas8(sl=2, bf=1) % sCas8(sl=2, bf=None): Model.r_sCas8.r.ES,
     }
 
     times = np.linspace(0, 10_000, 1000)
@@ -320,7 +330,7 @@ def test_intrinsic_arm():
 
     from ..corbat import IntrinsicARM as Model
 
-    model = arm(stimuli="intrinsic", add_CASPAM=False)
+    model = arm(stimuli="intrinsic", add_CASPAM=True)
     pysb.util.alias_model_components()
 
     mapping = {
@@ -402,6 +412,16 @@ def test_intrinsic_arm():
         Apaf(bf=1, state='A') % XIAP(bf=1): Model.arm.r_ApafA_XIAP.AB,
         IntrinsicStimuli(bf=None): Model.IntrinsicStimuli,
         Bid(bf=1, state='U') % IntrinsicStimuli(bf=1): Model.r_intrinsic.ES,
+        sCas3(sl=1, bf=None) % sCas3(sl=1, bf=None): Model.arm.caspam.sCas3.dimer,
+        sCas3(sl=None, bf=None): Model.arm.caspam.sCas3.monomer,
+        sCas8(sl=1, bf=None) % sCas8(sl=1, bf=None): Model.arm.caspam.sCas8.dimer,
+        sCas8(sl=None, bf=None): Model.arm.caspam.sCas8.monomer,
+        sCas9(sl=1, bf=None) % sCas9(sl=1, bf=None): Model.arm.caspam.sCas9.dimer,
+        sCas9(sl=None, bf=None): Model.arm.caspam.sCas9.monomer,
+        Apaf(bf=1, state='A') % sCas9(sl=2, bf=1) % sCas9(sl=2, bf=None): Model.arm.r_sCas9_Apaf.r.ES,
+        Apop(bf=1) % sCas9(sl=2, bf=1) % sCas9(sl=2, bf=None): Model.arm.r_sCas9_Apop.r.ES,
+        C3(bf=1, state='A') % sCas3(sl=2, bf=1) % sCas3(sl=2, bf=None): Model.arm.r_sCas3.r.ES,
+        C8(bf=1, state='A') % sCas8(sl=2, bf=1) % sCas8(sl=2, bf=None): Model.arm.r_sCas8.r.ES,
     }
 
     times = np.linspace(0, 10_000, 1000)
