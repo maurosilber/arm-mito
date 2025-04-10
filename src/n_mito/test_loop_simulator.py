@@ -11,11 +11,13 @@ from .loop_simulator import LoopSimulator
 class Manual(Compartment):
     cytoplasm = ARM_Cito()
     mitochondria_0 = Mitochondria(
+        volume_cell=cytoplasm.volume,
         CytoC_C=cytoplasm.CytoC_C,
         Smac_C=cytoplasm.Smac_C,
         Bax_A=cytoplasm.Bax_A,
     )
     mitochondria_1 = Mitochondria(
+        volume_cell=cytoplasm.volume,
         CytoC_C=cytoplasm.CytoC_C,
         Smac_C=cytoplasm.Smac_C,
         Bax_A=cytoplasm.Bax_A,

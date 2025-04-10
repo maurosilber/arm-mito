@@ -14,6 +14,7 @@ from poincare.compile import (
 )
 from poincare.simulator import Problem
 from poincare.solvers import LSODA
+from scipy_events import Events
 from simbio import Compartment, Simulator
 
 
@@ -136,13 +137,14 @@ class LoopSimulator:
     def create_problem(
         self,
         *,
+        t_span: tuple[float, float],
         main_values: dict[Variable, float] = {},
         loop_values: dict[Variable, ArrayLike] = {},
     ):
         y, p = self.create_initials(main_values=main_values, loop_values=loop_values)
         return Problem(
             self.func,
-            (0, np.inf),
+            t_span,
             y,
             p,
             transform=lambda t, y, p, dy: y,
@@ -154,12 +156,26 @@ class LoopSimulator:
         *,
         main_values: dict[Variable, float] = {},
         loop_values: dict[Variable, ArrayLike] = {},
+        t_span: tuple[float, float] | None = None,
+        save_at: ArrayLike | None = None,
         solver=LSODA(),
-        save_at: ArrayLike,
+        events: Sequence[Events] = (),
         loop_output: Literal["ignore", "sum", "index_as_suffix"] = "ignore",
     ):
-        problem = self.create_problem(main_values=main_values, loop_values=loop_values)
-        solution = solver(problem, save_at=np.asarray(save_at))
+        if save_at is not None:
+            save_at = np.asarray(save_at)
+
+        if t_span is None:
+            if save_at is None:
+                raise TypeError("must provide t_span and/or save_at.")
+            t_span = (0, save_at[-1])
+
+        problem = self.create_problem(
+            t_span=t_span,
+            main_values=main_values,
+            loop_values=loop_values,
+        )
+        solution = solver(problem, save_at=save_at, events=events)
         main_variables = self.main_sim.compiled.variables
         if loop_output == "ignore":
             return pd.DataFrame(
