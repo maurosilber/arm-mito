@@ -46,5 +46,14 @@ if __name__ == "__main__":
         for v in tqdm(volumes)
     ]
 
-    df = xarray.combine_by_coords(df)
-    df.to_zarr("2_stochastic.zarr", "w")
+    df = xarray.combine_by_coords(df).rename_vars(
+        {
+            "cytoplasm.C3_A": "C3_A",
+            "cytoplasm.caspam.sCas8.monomer": "sCas8",
+            "cytoplasm.caspam.sCas9.monomer": "sCas9",
+            "cytoplasm.caspam.sCas3.monomer": "sCas3",
+            "cytoplasm.C8_A": "C8_A",
+            "cytoplasm.Apop": "Apop",
+        }
+    )
+    df.to_zarr("2_stochastic.zarr", mode="w")

@@ -73,4 +73,4 @@ df = xarray.combine_by_coords(
         for stimulus_name, stimulus_values in stimuli.items()
     ]
 )
-df.to_zarr("3_mitochondria.zarr")
+df.to_zarr("3_mitochondria.zarr", mode="w")
