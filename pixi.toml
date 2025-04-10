@@ -3,15 +3,46 @@ name = "arm-mito"
 version = "0.1.0"
 description = ""
 authors = ["Mauro Silberberg <maurosilber@gmail.com>"]
-channels = ["https://fast.prefix.dev/conda-forge"]
+channels = ["https://prefix.dev/conda-forge"]
 platforms = ["osx-arm64"]
 
 [dependencies]
-poincare = "*"
+numpy = "*"
+libgfortran5 = ">=14"
+pandas = "*"
+pint = "*"
+pint-pandas = "*"
+python = ">=3.10"
+scipy = "*"
+symbolite = "<0.7"
+tabulate = "*"
+typing_extensions = "*"
+narwhals = "*"
+zarr = "*"
 
 [pypi-dependencies]
 arm = { path = ".", editable = true }
-simbio = "*"
+scipy-events = { path = "../scipy-events", editable = true }
+poincare = "*"
+simbio = { path = "../simbio", editable = true }
+
+[tasks.1_variable]
+cwd = "data"
+cmd = "python 1_variable.py"
+inputs = ["data/1_variable.py"]
+outputs = ["data/1_variable.zarr"]
+
+[tasks.2_stochastic]
+cwd = "data"
+cmd = "python 2_stochastic.py"
+inputs = ["data/2_stochastic.py"]
+outputs = ["data/2_stochastic.zarr"]
+
+[tasks.3_mitocondria]
+cwd = "data"
+cmd = "python 3_mitocondria.py"
+inputs = ["data/3_mitocondria.py"]
+outputs = ["data/3_mitocondria.zarr"]
 
 [feature.test.dependencies]
 pytest = "*"
@@ -25,16 +56,16 @@ earm = { git = "https://github.com/acorbat/earm" }
 caspase-model = { git = "https://github.com/acorbat/caspase_model" }
 
 [feature.plot.dependencies]
-ipykernel = ">=6.29.5,<7"
+ipykernel = ">=6.29.5"
 ipywidgets = "*"
 matplotlib = "*"
 polars = "*"
 seaborn = "*"
-pyarrow = ">=17.0.0,<18"
-pint = ">=0.24.3,<0.25"
-pint-pandas = ">=0.6.2,<0.7"
-jinja2 = ">=3.1.4,<4"
-python-ternary = ">=1.0.8,<2"
+pyarrow = ">=17.0.0"
+pint = ">=0.24.3"
+pint-pandas = ">=0.6.2"
+jinja2 = ">=3.1.4"
+python-ternary = ">=1.0.8"
 
 [feature.rebop]
 platforms = ["osx-arm64", "linux-64"]
@@ -70,8 +101,14 @@ mdformat = "*"
 mdformat-ruff = "*"
 nbstripout = "*"
 
+[feature.dask.dependencies]
+dask = "*"
+
+[feature.dask.pypi-dependencies]
+dask-checkpoint = "*"
+
 [environments]
 lint = { features = ["lint"], no-default-feature = true }
 test = ["test", "pysb"]
 rebop = ["rebop"]
-dev = ["rebop", "plot", "numba", "test"]
+default = ["rebop", "plot", "numba", "test", "pysb", "dask"]
